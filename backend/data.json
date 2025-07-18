@@ -1,0 +1,130 @@
+[
+  {
+    "name": "ผักกาดแก้ว",
+    "unit": "หัว",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "ผักสด"
+  },
+  {
+    "name": "มะเขือเทศ",
+    "unit": "กิโลกรัม",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "ผักสด"
+  },
+  {
+    "name": "แตงกวา",
+    "unit": "กิโลกรัม",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "ผักสด"
+  },
+  {
+    "name": "แป้งพิซซ่า",
+    "unit": "แผ่น",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "พิซซ่า"
+  },
+  {
+    "name": "ชีสมอซซาเรลล่า",
+    "unit": "กิโลกรัม",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "พิซซ่า"
+  },
+  {
+    "name": "ซอสพิซซ่า",
+    "unit": "ถุง",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "พิซซ่า"
+  },
+  {
+    "name": "แฮม",
+    "unit": "กิโลกรัม",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "พิซซ่า"
+  },
+  {
+    "name": "ซอสปรุงรส",
+    "unit": "ขวด",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "ซอสพริก",
+    "unit": "ขวด",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "ซอสมะเขือเทศ",
+    "unit": "ขวด",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "พริกไทย",
+    "unit": "ซอง",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "เกลือ",
+    "unit": "ถุง",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "น้ำตาลทราย",
+    "unit": "กิโลกรัม",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "น้ำปลา",
+    "unit": "ขวด",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "ซีอิ๊วขาว",
+    "unit": "ขวด",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  },
+  {
+    "name": "น้ำมันพืช",
+    "unit": "ขวด",
+    "initial": 0,
+    "used": 0,
+    "remaining": 0,
+    "category": "เครื่องปรุง"
+  }
+]
