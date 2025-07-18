@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ระบบจัดการวัตถุดิบ</title>
+</head>
+<body>
+  <h1>ระบบจัดการวัตถุดิบ</h1>
+  <div id="stock-list"></div>
+  <script>
+    fetch('/api/ingredients')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('stock-list');
+        data.forEach(item => {
+          const row = document.createElement('div');
+          row.innerHTML = `${item.name} (${item.unit}) - คงเหลือ: ${item.remaining}`;
+          list.appendChild(row);
+        });
+      });
+  </script>
+</body>
+</html>
+Create index.html
