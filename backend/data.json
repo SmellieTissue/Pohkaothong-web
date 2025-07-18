@@ -1,0 +1,23 @@
+[
+  {
+    "name": "หมูสับ",
+    "unit": "กิโลกรัม",
+    "remaining": 10
+  },
+  {
+    "name": "พริกขี้หนู",
+    "unit": "ถุง",
+    "remaining": 5
+  },
+  {
+    "name": "กะเพรา",
+    "unit": "มัด",
+    "remaining": 2
+  },
+  {
+    "name": "ซอสหอยนางรม",
+    "unit": "ขวด",
+    "remaining": 1
+  }
+]
+Create data.json
