@@ -2,7 +2,7 @@
   "name": "ingredient-stock-system",
   "version": "1.0.0",
   "description": "ระบบจัดการวัตถุดิบในร้านอาหาร",
-  "main": "backend/server.js",
+  "main": "server.js",
   "scripts": {
     "start": "node backend/server.js"
   },
