@@ -1,25 +1,57 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ระบบจัดการวัตถุดิบ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบจัดการวัตถุดิบร้านป.เคราทอง</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Kanit', sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+    }
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .container {
+      padding: 2rem;
+      text-align: center;
+    }
+    .card {
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin: 1rem auto;
+      max-width: 500px;
+    }
+    .button {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background-color: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>ระบบจัดการวัตถุดิบ</h1>
-  <div id="stock-list"></div>
-  <script>
-    fetch('/api/ingredients')
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('stock-list');
-        data.forEach(item => {
-          const row = document.createElement('div');
-          row.innerHTML = `${item.name} (${item.unit}) - คงเหลือ: ${item.remaining}`;
-          list.appendChild(row);
-        });
-      });
-  </script>
+  <header>ระบบจัดการวัตถุดิบร้านป.เคราทอง</header>
+  <div class="container">
+    <div class="card">
+      <h2>ยินดีต้อนรับ 👋</h2>
+      <p>เลือกเมนูจาก LINE กลุ่มเพื่อเริ่มต้นใช้งานระบบได้เลย</p>
+      <a class="button" href="#">เปิดระบบผ่านไลน์</a>
+    </div>
+  </div>
 </body>
 </html>
-Create index.html
