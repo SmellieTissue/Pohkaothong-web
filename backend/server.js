@@ -62,6 +62,7 @@ app.post("/save", (req, res) => {
     if (err) return res.status(500).send("❌ บันทึกไม่สำเร็จ");
 
     const now = dayjs().tz("Asia/Bangkok", true).format("DD/MM/YYYY HH:mm");
+console.log("🕒 เวลาที่บันทึกจากเซิร์ฟเวอร์:", now);
 
     const message = {
       type: "flex",
