@@ -3,164 +3,198 @@ const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
-const { Client } = require("@line/bot-sdk");
+const { Client, middleware } = require("@line/bot-sdk");
+const schedule = require("node-schedule"); // ✅ ใช้สำหรับ schedule
 
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_PATH = path.join(__dirname, "data.json");
+const SUMMARY_PATH = path.join(__dirname, "summary.json");
 
-// ✅ LINE Bot Config
+// 🟩 LINE Bot Config
 const lineConfig = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || "YOUR_TOKEN_HERE",
-  channelSecret: process.env.LINE_CHANNEL_SECRET || "YOUR_SECRET_HERE",
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+  channelSecret: process.env.LINE_CHANNEL_SECRET,
 };
 const lineClient = new Client(lineConfig);
-const GROUP_ID = process.env.LINE_GROUP_ID || "YOUR_GROUP_ID";
+const GROUP_ID = process.env.LINE_GROUP_ID || "C14991c0252e1bf8eea85a7c66eb0b0ef";
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ เส้นทางหน้าเว็บหลัก
+// 🟩 หน้าเว็บหลัก
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ✅ อ่านข้อมูล
+// 🟩 ดึงข้อมูลวัตถุดิบ
 app.get("/data.json", (req, res) => {
   fs.readFile(DATA_PATH, "utf8", (err, data) => {
-    if (err) return res.status(500).send("Error reading data.");
+    if (err) return res.status(500).send("ไม่สามารถโหลดข้อมูลได้");
     res.json(JSON.parse(data));
   });
 });
 
-// ✅ บันทึกข้อมูล
+// ✅ บันทึกข้อมูล + แจ้งเตือน LINE
 app.post("/save", (req, res) => {
-  const newData = req.body;
+  const newData = req.body.data;
+  const username = req.body.username || "ไม่ระบุชื่อ";
+
+  if (!newData) return res.status(400).send("❌ ไม่พบข้อมูล");
 
   fs.writeFile(DATA_PATH, JSON.stringify(newData, null, 2), (err) => {
-    if (err) return res.status(500).send("Error writing data.");
+    if (err) return res.status(500).send("❌ บันทึกไม่สำเร็จ");
 
-    // ส่งแจ้งเตือนไปไลน์
-    const date = new Date();
-    const timestamp = date.toLocaleString("th-TH", { timeZone: "Asia/Bangkok" });
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("th-TH");
+    const timeStr = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+
     const message = {
-      type: "text",
-      text: `📦 มีการอัปเดตวัตถุดิบเมื่อ ${timestamp}`,
+      type: "flex",
+      altText: "มีการปรับวัตถุดิบ",
+      contents: {
+        type: "bubble",
+        header: {
+          type: "box",
+          layout: "vertical",
+          contents: [{ type: "text", text: "📦 มีการปรับวัตถุดิบ", weight: "bold", size: "lg", color: "#ffffff" }],
+          backgroundColor: "#3B82F6"
+        },
+        body: {
+          type: "box",
+          layout: "vertical",
+          spacing: "md",
+          contents: [
+            { type: "text", text: `👤 โดย: ${username}`, wrap: true },
+            { type: "text", text: `🕒 เวลา: ${dateStr} ${timeStr}`, wrap: true }
+          ]
+        }
+      }
     };
 
-    lineClient.pushMessage(GROUP_ID, message).catch((error) => {
-      console.error("LINE Notify Error:", error);
-    });
-
-    res.status(200).send("Data saved successfully.");
+    lineClient.pushMessage(GROUP_ID, message)
+      .then(() => res.status(200).send("✅ บันทึกและแจ้งเตือนแล้ว"))
+      .catch(() => res.status(500).send("❌ บันทึกได้แต่แจ้งเตือนไม่สำเร็จ"));
   });
 });
 
-// ✅ รับ webhook จาก LINE
+// ✅ Webhook รับข้อความจาก LINE
 app.post("/webhook", (req, res) => {
+  res.status(200).send("OK");
+
   const events = req.body.events;
+  if (!events || events.length === 0) return;
 
-  Promise.all(
-    events.map(async (event) => {
-      if (event.type === "message" && event.message.type === "text") {
-        const userMessage = event.message.text.trim();
-
-        if (userMessage === "สั่งซื้อ") {
-          try {
-            const rawData = fs.readFileSync(DATA_PATH);
-            const data = JSON.parse(rawData);
-
-            const itemsToOrder = [];
-
-            for (const category of data.categories) {
-              for (const item of category.ingredients) {
-                if (item["สั่งซื้อ"] && item["สั่งซื้อ"] !== "") {
-                  itemsToOrder.push(`• ${item.วัตถุดิบ} ${item["สั่งซื้อ"]} ${item.หน่วย}`);
-                }
-              }
-            }
-
-            const text =
-              itemsToOrder.length > 0
-                ? `🛒 รายการสั่งซื้อ:\n${itemsToOrder.join("\n")}`
-                : "ยังไม่มีรายการสั่งซื้อ";
-
-            await lineClient.replyMessage(event.replyToken, {
-              type: "text",
-              text,
-            });
-          } catch (error) {
-            console.error("Read data error:", error);
-          }
-        }
+  events.forEach((event) => {
+    if (event.type === "message" && event.message.type === "text") {
+      if (event.replyToken) {
+        lineClient.replyMessage(event.replyToken, {
+          type: "text",
+          text: "✅ รับข้อความแล้ว: " + event.message.text,
+        });
       }
-    })
-  ).then(() => res.status(200).end());
+    }
+  });
 });
 
-// ✅ ส่งปุ่ม Flex Message “เปิดระบบ” ทันทีเมื่อเซิร์ฟเวอร์เริ่ม
-function sendStartupMessage() {
-  const flexMessage = {
+// ✅ ส่ง Flex ปุ่มเข้าเว็บ
+function sendFlexOpenLink() {
+  const message = {
     type: "flex",
     altText: "เปิดระบบจัดการวัตถุดิบ",
     contents: {
       type: "bubble",
-      hero: {
-        type: "image",
-        url: "https://cdn.pixabay.com/photo/2017/01/31/20/14/icon-2027661_1280.png",
-        size: "full",
-        aspectRatio: "16:9",
-        aspectMode: "cover",
-      },
       body: {
         type: "box",
         layout: "vertical",
+        spacing: "md",
         contents: [
-          {
-            type: "text",
-            text: "ระบบจัดการวัตถุดิบ",
-            weight: "bold",
-            size: "xl",
-            align: "center",
-          },
-          {
-            type: "text",
-            text: "กดปุ่มด้านล่างเพื่อเข้าใช้งาน",
-            size: "sm",
-            color: "#888888",
-            margin: "md",
-            align: "center",
-          },
-        ],
-      },
-      footer: {
-        type: "box",
-        layout: "vertical",
-        spacing: "sm",
-        contents: [
+          { type: "text", text: "ระบบจัดการวัตถุดิบร้านป.เคราทอง", weight: "bold", size: "lg" },
           {
             type: "button",
             style: "primary",
             action: {
               type: "uri",
               label: "เปิดระบบ",
-              uri: "https://pokhaothong-ingredients.onrender.com",
-            },
-          },
-        ],
-      },
-    },
+              uri: `https://pokhaothong-ingredients.onrender.com/?groupId=${GROUP_ID}`
+            }
+          }
+        ]
+      }
+    }
   };
 
-  lineClient.pushMessage(GROUP_ID, flexMessage).catch((err) => {
-    console.error("Error sending startup message:", err);
-  });
+  lineClient.pushMessage(GROUP_ID, message)
+    .then(() => console.log("✅ ส่งปุ่มเปิดระบบไปยังกลุ่มแล้ว"))
+    .catch(err => console.error("❌ ส่งไม่สำเร็จ:", err));
 }
 
-// ✅ เริ่มเซิร์ฟเวอร์
+// ✅ Schedule: รีเซ็ตช่อง "สั่งซื้อ" เป็น 0 ตอน 12.00 น.
+schedule.scheduleJob("0 12 * * *", () => {
+  fs.readFile(DATA_PATH, "utf8", (err, raw) => {
+    if (err) return;
+    let data = JSON.parse(raw);
+    data.forEach(cat => cat.ingredients.forEach(i => i.to_buy = 0));
+    fs.writeFile(DATA_PATH, JSON.stringify(data, null, 2), () => {
+      console.log("✅ รีเซ็ตช่องสั่งซื้อแล้ว");
+    });
+  });
+});
+
+// ✅ Schedule: สรุปยอดเที่ยงคืน
+schedule.scheduleJob("0 0 * * *", () => {
+  fs.readFile(DATA_PATH, "utf8", (err, raw) => {
+    if (err) return;
+    let data = JSON.parse(raw);
+
+    const summary = [];
+    data.forEach(cat => {
+      cat.ingredients.forEach(i => {
+        summary.push({
+          name: i.name,
+          used: i.used || 0,
+          remaining: i.remaining || 0,
+          to_buy: i.to_buy || 0
+        });
+      });
+    });
+
+    fs.writeFile(SUMMARY_PATH, JSON.stringify(summary, null, 2), () => {
+      console.log("✅ บันทึกสรุปยอดแล้ว");
+    });
+
+    const message = {
+      type: "flex",
+      altText: "สรุปยอดวัตถุดิบประจำวันที่",
+      contents: {
+        type: "bubble",
+        header: {
+          type: "box",
+          layout: "vertical",
+          contents: [{ type: "text", text: "📊 สรุปยอดวันนี้", weight: "bold", size: "lg", color: "#ffffff" }],
+          backgroundColor: "#10B981"
+        },
+        body: {
+          type: "box",
+          layout: "vertical",
+          contents: summary.slice(0, 10).map(i => ({
+            type: "text",
+            text: `🍴 ${i.name} | ใช้: ${i.used} | คงเหลือ: ${i.remaining} | สั่ง: ${i.to_buy}`,
+            wrap: true
+          }))
+        }
+      }
+    };
+
+    lineClient.pushMessage(GROUP_ID, message)
+      .then(() => console.log("✅ ส่งสรุปยอดเที่ยงคืนแล้ว"))
+      .catch(err => console.error("❌ ส่งสรุปยอดไม่ได้:", err));
+  });
+});
+
+// 🟩 เริ่มรันเซิร์ฟเวอร์
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  sendStartupMessage(); // ส่งเมื่อเริ่มระบบ
+  console.log(`✅ Server is running on port ${PORT}`);
+  sendFlexOpenLink();
 });
