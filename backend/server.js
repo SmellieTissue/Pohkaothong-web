@@ -4,6 +4,7 @@ const timezone = require("dayjs/plugin/timezone");
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Bangkok");
 
 const express = require("express");
 const fs = require("fs");
