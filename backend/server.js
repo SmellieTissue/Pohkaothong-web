@@ -62,7 +62,7 @@ app.post("/save", (req, res) => {
   fs.writeFile(DATA_PATH, JSON.stringify(wrapped, null, 2), (err) => {
     if (err) return res.status(500).send("❌ บันทึกไม่สำเร็จ");
 
-    const now = dayjs().tz("Asia/Bangkok").format("DD/MM/YYYY HH:mm");
+    const now = req.body.timestamp || dayjs().format("DD/MM/YYYY HH:mm");
 
     const message = {
       type: "flex",
